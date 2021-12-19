@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\LogoutResponse;
+use Laravel\Fortify\Contracts\RegisterResponse;
+//use App\Responses\RegisterResponse;
+//use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -23,6 +28,25 @@ class FortifyServiceProvider extends ServiceProvider
     public function register()
     {
         //
+        /*
+        $this->app->bind(
+            RegisterResponseContract::class,
+            RegisterResponse::class
+        );*/
+
+        $this->app->instance(LoginResponse::class, new class implements LoginResponse {
+            public function toResponse($request)
+            {
+                $user = Auth::user();
+                //$user = User::find(Auth::id());
+
+                if($user->usr_lvl == 'customer'){
+                    return redirect()->route('default-home');
+                }else{
+                    return redirect()->route('dashboard');
+                }
+            }
+        });
     }
 
     /**
@@ -52,12 +76,35 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::authenticateUsing(function ($request) {
+
             $validated = Auth::validate([
-                'username' => $request->username,
-                'password' => $request->password
+                'samaccountname' => $request->username,
+                'password' => $request->password,
+                'fallback' => [
+                    'username' => $request->email,
+                    'password' => $request->password,
+                ],
             ]);
+
+            /*
+            $user = User::where('username', $request->username)->first();
+
+            if ($user && Hash::check($request->password, $user->password) && $user->active == 1) {
+                //if (Hash::check($request->password, $user->password)) {
+                return $user;
+                //}
+            }
+            else {
+                throw ValidationException::withMessages([
+                    Fortify::username() => "Username not found or account is inactive. Please check your username.",
+                ]);
+            }*/
+
+            //dd($validated);
+
 
             return $validated ? Auth::getLastAttempted() : null;
         });
+
     }
 }

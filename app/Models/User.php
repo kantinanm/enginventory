@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use LdapRecord\Laravel\Auth\HasLdapUser;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
 class User extends Authenticatable implements LdapAuthenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    use HasLdapUser;
+    use AuthenticatesWithLdap;
     /**
      * The attributes that are mass assignable.
      *
@@ -22,8 +22,11 @@ class User extends Authenticatable implements LdapAuthenticatable
     protected $fillable = [
         'name',
         'username',
+        'guid',
+        'domain',
         'firstname',
         'lastname',
+        'usr_lvl',
         'active',
         'email',
         'password',
@@ -39,6 +42,7 @@ class User extends Authenticatable implements LdapAuthenticatable
         'remember_token',
     ];
 
+
     /**
      * The attributes that should be cast.
      *
@@ -49,33 +53,4 @@ class User extends Authenticatable implements LdapAuthenticatable
     ];
 
 
-    public function getLdapDomainColumn()
-    {
-        // TODO: Implement getLdapDomainColumn() method.
-    }
-
-    public function getLdapDomain()
-    {
-        // TODO: Implement getLdapDomain() method.
-    }
-
-    public function setLdapDomain($domain)
-    {
-        // TODO: Implement setLdapDomain() method.
-    }
-
-    public function getLdapGuidColumn()
-    {
-        // TODO: Implement getLdapGuidColumn() method.
-    }
-
-    public function getLdapGuid()
-    {
-        // TODO: Implement getLdapGuid() method.
-    }
-
-    public function setLdapGuid($guid)
-    {
-        // TODO: Implement setLdapGuid() method.
-    }
 }
