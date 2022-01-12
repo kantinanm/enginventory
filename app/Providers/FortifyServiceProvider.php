@@ -15,6 +15,8 @@ use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
+use App\Models\User;
+use Illuminate\Validation\ValidationException;
 //use App\Responses\RegisterResponse;
 //use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 
@@ -77,19 +79,33 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::authenticateUsing(function ($request) {
 
-            $validated = Auth::validate([
-                'samaccountname' => $request->username,
-                'password' => $request->password,
-                'fallback' => [
-                    'username' => $request->email,
-                    'password' => $request->password,
-                ],
-            ]);
-
-            /*
             $user = User::where('username', $request->username)->first();
+            $validated=false;
 
-            if ($user && Hash::check($request->password, $user->password) && $user->active == 1) {
+            if ($user && in_array($user->active, [1])) {
+                /*if (Hash::check($request->password, $user->password)) {
+                    return $user;
+                }*/
+
+                $validated = Auth::validate([
+                    'samaccountname' => $request->username,
+                    'password' => $request->password,
+                    'fallback' => [
+                        'username' => $request->username,
+                        'password' => $request->password,
+                    ],
+                ]);
+            }
+            else {
+                throw ValidationException::withMessages([
+                    Fortify::username() => "Username not found or account is inactive. Please check your username.",
+                ]);
+            }
+
+
+
+
+             /*if ($user && Hash::check($request->password, $user->password) && $user->active == 1) {
                 //if (Hash::check($request->password, $user->password)) {
                 return $user;
                 //}

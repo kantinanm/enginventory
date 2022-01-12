@@ -14,9 +14,18 @@
                     <div class="panel-heading">Dashboard</div>
 
                     <div class="panel-body">
-                        You are logged in!
+                        You are logged in!, Hello {{\Auth::user()->name." ".\Auth::user()->lastname." (".\Auth::user()->usr_lvl.")"}}
                     </div>
                 </div>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    Logout
+                </a>
+
+                <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                    @csrf
+                </form>
             </div>
         </div>
     </div>
